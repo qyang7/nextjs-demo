@@ -117,9 +117,9 @@ export default function QuestionPage() {
                 TELL US MORE ABOUT THE FEATURE YOU ARE WORKING ON?
             </h1>
 
-            <div className="bg-white p-6 rounded-md shadow-md w-full max-w-xl">
+            <div className="bg-white p-10 rounded-md  w-full max-w-xl">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-14">
                         {questions.map((q) => (
                             <FormField
                                 key={q.id}
@@ -180,16 +180,18 @@ export default function QuestionPage() {
                                 )}
                             />
                         ))}
-
-                        <div className="flex justify-end gap-4 pt-4">
-                            <Button variant="outline" type="button">
-                                Cancel
-                            </Button>
-                            <Button type="submit">Next</Button>
-                        </div>
                     </form>
                 </Form>
             </div>
+            <div className="flex justify-end gap-4 pt-6">
+                <Button variant="outline" type="button">
+                    Cancel
+                </Button>
+                <Button onClick={form.handleSubmit(onSubmit)} type="button">
+                    Next
+                </Button>
+            </div>
+
         </div>
     )
 }
