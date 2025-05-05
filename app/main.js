@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -30,42 +30,56 @@ const schema = z.object({
     ),
 })
 
-const mockDataPage1 = [
-    {
-        id: "q1",
-        question: "Do you want to build a Snowman?",
-        type: "radio",
-        options: ["true", "false"],
-    },
-    {
-        id: "q2",
-        question: "Which of the following apply to you?",
-        type: "checkbox",
-        options: ["Option A", "Option B", "Option C"],
-    },
-]
+const mockDataPage1 = {
+    data: {
+        sessionId: "mock-session-1",
+        questionList: [
+            {
+                id: "q1",
+                question: "Do you want to build a Snowman?",
+                optionType: "radio",
+                options: ["true", "false"],
+                key: "f_console_login_HS"
+            },
+            {
+                id: "q2",
+                question: "Which of the following apply to you?",
+                optionType: "checkbox",
+                options: ["Option A", "Option B", "Option C"],
+                key: "multi_select_1"
+            },
+        ]
+    }
+}
 
-const mockDataPage2 = [
-    {
-        id: "q3",
-        question: "What is your favorite frontend framework?",
-        type: "radio",
-        options: ["React", "Vue", "Svelte", "Angular"],
-    },
-    {
-        id: "q4",
-        question: "Which technologies are you currently using?",
-        type: "checkbox",
-        options: ["TypeScript", "Tailwind CSS", "Next.js", "GraphQL"],
-    },
-]
+const mockDataPage2 = {
+    data: {
+        sessionId: "mock-session-2",
+        questionList: [
+            {
+                id: "q3",
+                question: "What is your favorite frontend framework?",
+                optionType: "radio",
+                options: ["React", "Vue", "Svelte", "Angular"],
+                key: "frontend_pref"
+            },
+            {
+                id: "q4",
+                question: "Which technologies are you currently using?",
+                optionType: "checkbox",
+                options: ["TypeScript", "Tailwind CSS", "Next.js", "GraphQL"],
+                key: "tech_used"
+            },
+        ]
+    }
+}
 
 let mockPage = 1
 
 export default function QuestionPage() {
     const [questions, setQuestions] = useState([])
+    const [sessionId, setSessionId] = useState(null)
     const [loading, setLoading] = useState(true)
-
     const form = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -73,25 +87,39 @@ export default function QuestionPage() {
         },
     })
 
-    const fetchQuestions = async (prevAnswers = {}) => {
+    const fetchQuestions = async (prevAnswers = {}, prevSession = null) => {
         setLoading(true)
+        const answerList = Object.entries(prevAnswers).map(([key, value]) => ({
+            key,
+            value: Array.isArray(value) ? value.join(",") : value
+        }))
+
         try {
             const res = await fetch("/api/questions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ answers: prevAnswers }),
+                body: JSON.stringify({
+                    sessionId: prevSession,
+                    appId: 100,
+                    featKey: "Hide and Seek",
+                    release: "",
+                    answerList,
+                }),
             })
             const data = await res.json()
-            if (data?.type === "end") {
+            const list = data?.data?.questionList || []
+            if (list.length === 0) {
                 toast.success("问卷填写完毕，感谢参与！")
                 setQuestions([])
             } else {
-                setQuestions(data)
+                setSessionId(data.data.sessionId)
+                setQuestions(list)
             }
         } catch (e) {
-            toast.error("Failed to load questions, using mock data.")
+            toast.error("接口失败，使用 mock 数据。")
             const mock = mockPage === 1 ? mockDataPage1 : mockDataPage2
-            setQuestions(mock)
+            setSessionId(mock.data.sessionId)
+            setQuestions(mock.data.questionList)
             mockPage++
         } finally {
             setLoading(false)
@@ -104,8 +132,12 @@ export default function QuestionPage() {
     }, [])
 
     const onSubmit = async (values) => {
-        toast.success("Submitted: " + JSON.stringify(values.answers))
-        await fetchQuestions(values.answers)
+        toast.success("提交中...")
+        const mapped = {}
+        questions.forEach(q => {
+            mapped[q.key || q.id] = values.answers[q.id] || values.answers[q.key]
+        })
+        await fetchQuestions(mapped, sessionId)
     }
 
     if (loading) return <div className="text-center mt-20">Loading...</div>
@@ -117,7 +149,7 @@ export default function QuestionPage() {
                 TELL US MORE ABOUT THE FEATURE YOU ARE WORKING ON?
             </h1>
 
-            <div className="bg-white p-10 rounded-md  w-full max-w-xl">
+            <div className="bg-white p-10 rounded-md w-full max-w-xl">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-14">
                         {questions.map((q) => (
@@ -132,7 +164,7 @@ export default function QuestionPage() {
                                             {q.question} <span>🤖</span>
                                         </FormLabel>
                                         <FormControl>
-                                            {q.type === "radio" ? (
+                                            {q.optionType === "radio" ? (
                                                 <RadioGroup
                                                     onValueChange={field.onChange}
                                                     defaultValue={field.value}
@@ -183,6 +215,7 @@ export default function QuestionPage() {
                     </form>
                 </Form>
             </div>
+
             <div className="flex justify-end gap-4 pt-6">
                 <Button variant="outline" type="button">
                     Cancel
