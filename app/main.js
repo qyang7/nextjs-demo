@@ -132,7 +132,7 @@ export default function QuestionPage() {
     }, [])
 
     const onSubmit = async (values) => {
-        toast.success("提交中..～")
+        toast.success("提交中…")
         const mapped = {}
         questions.forEach(q => {
             mapped[q.key || q.id] = values.answers[q.id] || values.answers[q.key]
