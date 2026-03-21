@@ -1,5 +1,6 @@
 {
   "name": "测试12",
+  "description": "des测试",
   "version": "0.1.0",
   "private": true,
   "scripts": {
