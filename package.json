@@ -1,6 +1,10 @@
 {
   "name": "测试12",
+<<<<<<< Updated upstream
   "description": "测试",
+=======
+  "description": "测试2",
+>>>>>>> Stashed changes
   "version": "0.1.0",
   "private": true,
   "scripts": {
