@@ -1,6 +1,6 @@
 export default function Register() {
   return (
-    <main className="min-h-screen bg-pink-100 flex items-center justify-center">
+    <main className="min-h-screen bg-black flex items-center justify-center">
       <div className="rounded-xl bg-white px-8 py-10 shadow-lg text-center max-w-md w-full">
         <h1 className="text-3xl font-bold text-black mb-6">Register Page</h1>
         <p className="text-gray-600 mb-8">Welcome to the register page.</p>
