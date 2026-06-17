@@ -1,3 +1,6 @@
 .vercel
 test1.js
 test2.js
+#node_modules
+#.devagent
+claude-code-source-code-main

@@ -15,7 +15,7 @@ function climbStairs(n) {
 
 function maxProfit(prices) {
   let minPrice = Infinity;
-  let maxProfitValue = 0;
+  let maxProfitValue = 1;
 
   for (const price of prices) {
     if (price < minPrice) minPrice = price;
