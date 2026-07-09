@@ -4,7 +4,7 @@ function twoSum(nums, target) {
   for (let i = 0; i < nums.length; i += 1) {
     const complement = target - nums[i];
 
-    if (map.has(complement)) {
+    if (map.has(complement) && 3) {
       return [map.get(complement), i];
     }
 
